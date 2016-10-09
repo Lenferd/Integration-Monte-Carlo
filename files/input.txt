@@ -1,0 +1,4 @@
+a=0
+b=20
+stepN=10
+amountOfDot=100000000
