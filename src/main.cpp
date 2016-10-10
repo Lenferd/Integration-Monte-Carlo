@@ -2,9 +2,6 @@
 #include <cmath>
 #include <ctime>
 
-#include <iostream>
-using namespace std;
-
 double func(double a, int b = 3) {
     return pow(a, b);
 }
@@ -40,27 +37,23 @@ int main(int argc, char** argv) {
         else if (res < min)
             min = res;
     }
-    cout << min << " " << max << endl;
 
     srand(time(0));
     //  We throw a random dot in field step by step 
     double stepSizeThrow = (double)(abs(a) + abs(b)) / amountOfDot;
-    int dotInField = 0;     // Amount of dot in our area (under integral)
+    int dotInField = 0;                                         // Amount of dot in our area (under integral)
     for (double i = a; i <= b; i += stepSizeThrow) {
-        //double randPoint = rand() % ((int)(max - min) + 1);     // we must also include the bounders 
-        double randPoint = (double)(rand()) / RAND_MAX * (max - min);
-                                                                // for example, if max(3) - min(1) = rand % 2, (0,1) but min+1 != max
-                                                                // Warning! If max - min > 32767 (RAND_MAX) we have a problem
-        randPoint += min;                                       // result of rand should be in range between max and min
+        double randPoint = (double)(rand()) / RAND_MAX * (max - min);   // We throw a random points in our field
+        randPoint += min;                                               // result of rand should be in range between max and min
         if (randPoint <= func(i)) {
             dotInField++;
         }
     }
 
     // After all, we know amount of throwing dots, and can calculate square under function
-    double areaSquare = (b - a) * (max - min);  //  square of our area
+    double areaSquare = (b - a) * (max - min);                      //  square of our area
     double resultIntegral = areaSquare * dotInField / amountOfDot;
-    printf("%lf\n", resultIntegral);
+    printf("Intgral = %lf\n", resultIntegral);
     system("pause");
     return 0;
 }
