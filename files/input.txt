@@ -1,4 +1,5 @@
 a=0
 b=20
+powerOfFunction=2
 stepN=10
-amountOfDot=100000000
+amountOfDot=1000000
