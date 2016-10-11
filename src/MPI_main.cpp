@@ -85,33 +85,21 @@ int main (int argc, char* argv[]) {
         MPI_Bcast(&min, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     };
 
-    if (rank == 0) {
-        printf("max %lf\n", max);
-        printf("min %lf\n", min);
-    }
-
     srand(time(0) + rank);
     //  We throw a random dot in field step by step
     double stepSizeThrow = (double)(fabs(a) + fabs(b)) / amountOfDot;
     double local_dotInField = 0;                                         // Amount of dot in our area (under integral)
     double local_step = amountOfDot / size;
     double local_size = stepSizeThrow * local_step;
-    //printf("%lf == %lf", local_size, local_step);
     for (double i = a + (rank * local_size); i <= a + (rank + 1) * local_size; i+= stepSizeThrow) {
         double randPoint = (double)(rand()) / RAND_MAX * (max - min);   // We throw a random points in our field
         randPoint += min;                                               // result of rand should be in range between max and min
-        //printf("rand %lf = %lf\n", randPoint, i);
         if (randPoint <= func(i)) {
             local_dotInField++;
         }
-        //printf("dotIdn %lf\n", local_dotInField);
     }
 
     MPI_Reduce(&local_dotInField, &dotInField, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    if (rank == 0) {
-        printf("dotIn %lf", local_dotInField);
-    }
 
     // After all, we know amount of throwing dots, and can calculate square under function
     if (rank == 0) {
