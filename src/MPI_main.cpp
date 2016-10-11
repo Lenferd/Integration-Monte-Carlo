@@ -24,6 +24,8 @@ int main (int argc, char* argv[]) {
     double dotInField;
     double stepSize;
 
+    double startTime, endTime = 0.0; // program working time
+
     MPI_Init (&argc, &argv); /* starts MPI */
     MPI_Comm_rank (MPI_COMM_WORLD, &rank); /* get current process id */
     MPI_Comm_size (MPI_COMM_WORLD, &size); /* get number of processes */
@@ -44,6 +46,7 @@ int main (int argc, char* argv[]) {
         printf("a=%d, b=%d, stepM=%d, amountofDot=%d\n", a, b, stepN, amountOfDot);
     }
 
+    startTime = MPI_Wtime();
     MPI_Bcast(&a, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&b, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -105,7 +108,10 @@ int main (int argc, char* argv[]) {
     if (rank == 0) {
         double areaSquare = (b - a) * (max - min);                      //  square of our area
         double resultIntegral = areaSquare * dotInField / amountOfDot;
-        printf("Intgral = %lf\n", resultIntegral);
+        endTime = MPI_Wtime();
+
+        printf("Integral = %.10f\n", resultIntegral);
+        printf ("Working time = %.4f\n", endTime-startTime);
     }
 
     MPI_Finalize();

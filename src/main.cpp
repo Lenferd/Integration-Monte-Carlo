@@ -15,6 +15,7 @@ int main(int argc, char** argv) {
     int stepN;          // count of steps for calculate function min and max
     int amountOfDot;    // how many dot we throw on graphic
     int functionPower;  // we use power function in this program
+    std::clock_t startTime;
 
     FILE *infile = fopen("input.txt", "r");
 
@@ -29,6 +30,8 @@ int main(int argc, char** argv) {
     fscanf(infile, "stepN=%d\n", &stepN);
     fscanf(infile, "amountOfDot=%d\n", &amountOfDot);
     printf("a=%d, b=%d, stepM=%d, amountofDot=%d\n", a, b, stepN, amountOfDot);
+
+    startTime = std::clock();
 
     //  In this block we find min and max of function
     double stepSize = (double)(abs(a) + abs(b)) / stepN;
@@ -57,6 +60,7 @@ int main(int argc, char** argv) {
     // After all, we know amount of throwing dots, and can calculate square under function
     double areaSquare = (b - a) * (max - min);                      //  square of our area
     double resultIntegral = areaSquare * dotInField / amountOfDot;
-    printf("Intgral = %lf\n", resultIntegral);
+    printf("Integral = %.10f\n", resultIntegral);
+    printf("Working time = %.5f\n", ( std::clock() - startTime ) / (double) CLOCKS_PER_SEC);
     return 0;
 }
