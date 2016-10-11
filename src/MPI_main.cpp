@@ -21,13 +21,13 @@ int main (int argc, char* argv[]) {
     int stepN;          // count of steps for calculate function min and max
     int amountOfDot;    // how many dot we throw on graphic
     int functionPower;  // we use power function in this program
-    double stepSize = 0.0;
+    double dotInField;
+    double stepSize;
 
     MPI_Init (&argc, &argv); /* starts MPI */
     MPI_Comm_rank (MPI_COMM_WORLD, &rank); /* get current process id */
     MPI_Comm_size (MPI_COMM_WORLD, &size); /* get number of processes */
 
-    printf("bla, %d %d\n", rank, size);
     if (rank == 0) {
         FILE *infile = fopen("input.txt", "r");
 
@@ -52,47 +52,53 @@ int main (int argc, char* argv[]) {
     MPI_Bcast(&amountOfDot, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&stepN, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    int bounders_step = stepN / size;
 
     //  In this block we find min and max of function
-    min = max = func(a);
+    int bounders_step = stepN / size;
+    double local_min, local_max = func(a);
     stepSize = (double)(abs(a) + abs(b)) / stepN;
-    printf("b %d, %d\n", b, rank);
-    printf("helpMe %lf, %d\n", stepSize, rank);
+    double local_bounders_size = bounders_step * stepSize;
 
-/*    for (double i = a + (rank * bounders_step); i <= a + (rank + 1) * bounders_step; i+=stepSize) {
-        printf("helpMe %lf, %d", i, rank);
+    for (double i = a + (rank * local_bounders_size); i <= a + (rank + 1) * local_bounders_size; i+=stepSize) {
         double res = func(i);
         if (res > max)
-            max = res;
+            local_max = res;
         else if (res < min)
-            min = res;
-    }*/
-    /*MPI_Allreduce(&min, &min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&max, &max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+            local_min = res;
+    }
+
+    MPI_Allreduce(&local_min, &min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_max, &max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+
+    if (rank == 0) {
+        printf("max %lf", max);
+        printf("min %lf", min);
+    }
 
     srand(time(0));
     //  We throw a random dot in field step by step
     double stepSizeThrow = (double)(fabs(a) + fabs(b)) / amountOfDot;
-    int dotInField = 0;                                         // Amount of dot in our area (under integral)
+    double local_dotInField = 0;                                         // Amount of dot in our area (under integral)
     int local_step = amountOfDot / size;
+    int local_size = stepSizeThrow * local_step;
 
-    for (double i = a + (rank * local_step); i <= a + (rank + 1) * local_step; i+= stepSizeThrow) {
+    for (double i = a + (rank * local_size); i <= a + (rank + 1) * local_size; i+= stepSizeThrow) {
         double randPoint = (double)(rand()) / RAND_MAX * (max - min);   // We throw a random points in our field
         randPoint += min;                                               // result of rand should be in range between max and min
         if (randPoint <= func(i)) {
-            dotInField++;
+            local_dotInField++;
         }
     }
 
-    MPI_Reduce(&dotInField, &dotInField, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&local_dotInField, &dotInField, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // After all, we know amount of throwing dots, and can calculate square under function
     if (rank == 0) {
         double areaSquare = (b - a) * (max - min);                      //  square of our area
         double resultIntegral = areaSquare * dotInField / amountOfDot;
         printf("Intgral = %lf\n", resultIntegral);
-    }*/
+    }
+
     MPI_Finalize();
     return 0;
 }
