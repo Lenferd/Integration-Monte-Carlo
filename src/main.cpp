@@ -1,9 +1,11 @@
 #include <cstdio>
 #include <cmath>
 #include <ctime>
+#include <cstdlib>
 
-double func(double a, int b = 3) {
-    return pow(a, b);
+// function which calculate
+double func(double x, int power = 2) {
+    return pow(x, power);
 }
 
 int main(int argc, char** argv) {
@@ -12,6 +14,7 @@ int main(int argc, char** argv) {
     double min, max;    // min and max of function
     int stepN;          // count of steps for calculate function min and max
     int amountOfDot;    // how many dot we throw on graphic
+    int functionPower;  // we use power function in this program
 
     FILE *infile = fopen("input.txt", "r");
 
@@ -22,6 +25,7 @@ int main(int argc, char** argv) {
 
     fscanf(infile, "a=%d\n", &a);
     fscanf(infile, "b=%d\n", &b);
+    fscanf(infile, "powerOfFunction=%d\n", &functionPower);
     fscanf(infile, "stepN=%d\n", &stepN);
     fscanf(infile, "amountOfDot=%d\n", &amountOfDot);
     printf("a=%d, b=%d, stepM=%d, amountofDot=%d\n", a, b, stepN, amountOfDot);
@@ -40,7 +44,7 @@ int main(int argc, char** argv) {
 
     srand(time(0));
     //  We throw a random dot in field step by step 
-    double stepSizeThrow = (double)(abs(a) + abs(b)) / amountOfDot;
+    double stepSizeThrow = (double)(fabs(a) + fabs(b)) / amountOfDot;
     int dotInField = 0;                                         // Amount of dot in our area (under integral)
     for (double i = a; i <= b; i += stepSizeThrow) {
         double randPoint = (double)(rand()) / RAND_MAX * (max - min);   // We throw a random points in our field
@@ -54,6 +58,5 @@ int main(int argc, char** argv) {
     double areaSquare = (b - a) * (max - min);                      //  square of our area
     double resultIntegral = areaSquare * dotInField / amountOfDot;
     printf("Intgral = %lf\n", resultIntegral);
-    system("pause");
     return 0;
 }
